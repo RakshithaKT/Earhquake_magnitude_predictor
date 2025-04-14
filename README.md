@@ -1,0 +1,1 @@
+# Earhquake_magnitude_predictor
