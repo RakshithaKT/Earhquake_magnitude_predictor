@@ -11,22 +11,32 @@ from sklearn.tree import DecisionTreeRegressor
 
 st.title("🌍 Earthquake Magnitude Predictor")
 
-uploaded_file = st.file_uploader("Upload Earthquake CSV Dataset", type=["csv"])
+# Load your dataset here (replace this path with your local dataset if needed)
+@st.cache_data
+def load_data():
+    df = pd.read_csv("D:\\5th sem\\ML\\Earthquake\\Preprocessed_earthquake dataset (3).csv")
+  # Replace this with your CSV file path if needed
+    df = df.drop(columns=["Time", "Place"], errors="ignore")  # Drop unwanted columns
+    return df
 
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-    
-    if 'Time' in df.columns and 'Place' in df.columns:
-        df = df.drop(['Time', 'Place'], axis=1)
+df = load_data()
 
+# Check if 'Mag' column is present
+if "Mag" not in df.columns:
+    st.error("❌ Dataset must contain a 'Mag' column.")
+else:
+    # Split features and target
+    X_raw = df[["Latitude", "Longitude", "Depth"]]
+    y = df["Mag"]
+
+    # Handle missing values
     imputer = SimpleImputer(strategy="mean")
-    df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+    X = pd.DataFrame(imputer.fit_transform(X_raw), columns=X_raw.columns)
 
-    X = df_imputed.drop("Mag", axis=1)
-    y = df_imputed["Mag"]
-
+    # Train-test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+    # Define models
     models = {
         "Random Forest": RandomForestRegressor(),
         "Linear Regression": LinearRegression(),
@@ -35,8 +45,9 @@ if uploaded_file:
         "Gradient Boosting": GradientBoostingRegressor()
     }
 
+    # Train and evaluate models
     best_model = None
-    best_mse = float('inf')
+    best_mse = float("inf")
     best_name = ""
 
     for name, model in models.items():
@@ -51,14 +62,14 @@ if uploaded_file:
     st.success(f"✅ Best Model: {best_name}")
     st.info(f"📉 MSE on Test Data: {best_mse:.4f}")
 
-    st.subheader("🔍 Enter Input for Prediction")
-
+    # Take user input
+    st.subheader("🔍 Predict Magnitude")
     lat = st.number_input("Latitude", value=0.0)
     lon = st.number_input("Longitude", value=0.0)
     depth = st.number_input("Depth", value=10.0)
 
     if st.button("Predict Magnitude"):
-        input_df = pd.DataFrame([[lat, lon, depth]], columns=["Latitude", "Longitude", "Depth"])
-        input_imputed = pd.DataFrame(imputer.transform(input_df), columns=input_df.columns)
-        prediction = best_model.predict(input_imputed)[0]
+        user_input = pd.DataFrame([[lat, lon, depth]], columns=["Latitude", "Longitude", "Depth"])
+        user_input_imputed = pd.DataFrame(imputer.transform(user_input), columns=user_input.columns)
+        prediction = best_model.predict(user_input_imputed)[0]
         st.success(f"🌋 Predicted Magnitude: {prediction:.2f}")
