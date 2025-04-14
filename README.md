@@ -1,1 +1,2 @@
-# Earhquake_magnitude_predictor
+# Earhquake_magnitude_predictor 
+This project predicts the magnitude of earthquakes based on geospatial features such as latitude, longitude, and depth using machine learning models. It includes a Streamlit web application for interactive predictions and a Colab notebook for data exploration, model training, and evaluation.The machine learning algorithms used are: Linear regression, Decision Tree,Random forest and gradient boosting. Among which gradient boosting performed best achieving a MSE score of 0.196
