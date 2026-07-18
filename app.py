@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
@@ -47,20 +47,20 @@ else:
 
     # Train and evaluate models
     best_model = None
-    best_mse = float("inf")
+    best_r2_score = float("-inf")
     best_name = ""
 
     for name, model in models.items():
         model.fit(X_train, y_train)
         preds = model.predict(X_test)
-        mse = mean_squared_error(y_test, preds)
-        if mse < best_mse:
-            best_mse = mse
+        R2 = r2_score(y_test, preds)
+        if R2 < best_r2_score:
+            best_r2_score = R2
             best_model = model
             best_name = name
 
     st.success(f"✅ Best Model: {best_name}")
-    st.info(f"📉 MSE on Test Data: {best_mse:.4f}")
+    st.info(f"📉 R2_score on Test Data: {best_r2_score:.4f}")
 
     # Take user input
     st.subheader("🔍 Predict Magnitude")
